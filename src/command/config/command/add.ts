@@ -20,8 +20,9 @@ const description = `You can add an account
         huawei: AccessKey, SecretKey
         google: PrivateKeyData
         tencent: AccountID, SecretID, SecretKey
+        volcengine: AccessKey, SecretKey
 
-${emoji('🧭')} How to get the key: ${chalk.underline('https://serverless.help/t/s/provider_config')}`;
+${emoji('🧭')} How to get the key: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/config/#cloud-vendor')}`;
 
 export default (program: Command) => {
   const command = program.command('add');
@@ -29,7 +30,7 @@ export default (program: Command) => {
   command
     .usage('[options]')
     .description(description)
-    .summary(`${emoji(chalk.bold('+'))} Add an account`)
+    .summary(`Add an account`)
     .option('--AccountID <AccountID>', 'AccountID of key information')
     .option('--AccessKeyID <AccessKeyID>', 'AccessKeyID of key information')
     .option('--AccessKeySecret <AccessKeySecret>', 'AccessKeySecret of key information')

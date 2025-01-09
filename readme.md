@@ -32,10 +32,10 @@
 
 **Serverless Devs** 是一个开源开放的 Serverless 开发者平台，致力于为开发者提供强大的工具链体系。通过该平台，开发者不仅可以一键体验多云 Serverless 产品，极速部署 Serverless 项目，还可以在 Serverless 应用全生命周期进行项目的管理，并且非常简单快速的将 Serverless Devs 与其他工具/平台进行结合，进一步提升研发、运维效能。
 
-![图片alt](https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635319587379_20211027072627561648.png)
+![图片alt](https://img.alicdn.com/imgextra/i3/O1CN018uXKtJ22SYYkiojId_!!6000000007119-0-tps-1998-276.jpg)
 
 
-> 更多关于 Serverless Devs 的介绍可以参考[项目介绍文档](./docs/zh/readme.md)
+> 更多关于 Serverless Devs 的介绍可以参考[项目介绍文档](https://docs.serverless-devs.com/)
 
 # 快速上手
 
@@ -46,26 +46,26 @@ $ npm install @serverless-devs/s -g
 ```
 ❸ 在命令行中执行命令`s`，并按回车，开启你的 Serverless 之旅；   
 
-> 更多详细信息可以参考[Serverless Devs 安装文档](./docs/zh/quick_start.md)和[快速入门指南](./docs/zh/quick_start.md)
+> 更多详细信息可以参考[Serverless Devs 安装文档](https://docs.serverless-devs.com/user-guide/install/)和[快速入门指南](https://docs.serverless-devs.com/getting-started/)
 
 # 帮助文档
 
-- [安装文档](./docs/zh/quick_start.md)
-- [命令行操作](./docs/zh/command/readme.md)
-- [Yaml规范](./docs/zh/yaml.md)
-- [配置继承/多环境](./docs/zh/extend.md)
-- [CI/CD平台集成](./docs/zh/cicd.md)
+- [安装文档](https://docs.serverless-devs.com/user-guide/install/)
+- [命令行操作](https://docs.serverless-devs.com/user-guide/builtin/)
+- [Yaml规范](https://docs.serverless-devs.com/user-guide/spec/)
+- [配置继承/多环境](https://docs.serverless-devs.com/user-guide/spec/#yaml)
+- [CI/CD平台集成](https://docs.serverless-devs.com/user-guide/cicd/)
 
-> 如果您想为 Serverless Devs 贡献 Package（包括组件和应用），您可以参考 [Package开发文档](./docs/zh/package_dev.md)   
+> 如果您想为 Serverless Devs 贡献 Package（包括组件和应用），您可以参考 [Package开发文档](https://docs.serverless-devs.com/dev-guide/application/)   
 
-> Serverless Devs 天然支持 Yaml 模式与 Cli 模式，关于两者的区别和试用场景，可以参考文档[ **Yaml 模式 Cli 模式对比**](./docs/zh/yaml_and_cli.md)；关于[**Exit Code 定义**](./docs/zh/tool.md#exit-code-定义)、[**Yaml 文件优先级规范**](./docs/zh/tool.md#yaml-文件优先级规范)、[**密钥使用顺序与规范**](./docs/zh/tool.md#密钥使用顺序与规范)、[**通过环境变量设置密钥**](./docs/zh/tool.md#通过环境变量设置密钥)更多关于项目设计的一些细节可以参考[**开发者工具设计文档**](./docs/zh/tool.md) 
+> Serverless Devs 天然支持 Yaml 模式与 Cli 模式，关于两者的区别和试用场景，可以参考文档[ **Yaml 模式 Cli 模式对比**](https://docs.serverless-devs.com/user-guide/spec/#yaml-cli)；关于[**Exit Code 定义**](https://docs.serverless-devs.com/dev-guide/cli_design/#exit-code)、[**Yaml 文件优先级规范**](https://docs.serverless-devs.com/dev-guide/cli_design/#yaml)、[**密钥使用顺序与规范**](https://docs.serverless-devs.com/dev-guide/cli_design/#_11)、[**通过环境变量设置密钥**](https://docs.serverless-devs.com/dev-guide/cli_design/#_12)更多关于项目设计的一些细节可以参考[**开发者工具设计文档**](https://docs.serverless-devs.com/) 
 
 # 相关资源
 
 目前 Serverless Devs 项目已经支持的 FaaS 平台/产品：
 
 - Hosted
-  - 阿里云函数计算（FC）: [项目仓库](https://github.com/devsapp/fc)
+  - 阿里云函数计算（FC）: [项目仓库](https://github.com/devsapp/fc3)
   - AWS Lambda: [项目仓库](https://github.com/devscomp/lambda)
   - 百度智能云函数计算（CFC）: [项目仓库](https://github.com/xinwuyun/cfc)
   - 华为云函数工作流（FG）: [项目仓库](https://github.com/zy-linn/fgs-component)
@@ -102,9 +102,11 @@ Serverless Devs 遵循 [Apache-2.0 license](./LICENSE) 开源许可。
 
 <p align="center">
 <br/><br/>
-<img src="https://landscape.cncf.io/images/left-logo.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="200"/>&nbsp;&nbsp;
+
+![](https://landscape.cncf.io/images/cncf-landscape-horizontal-color.svg)
+  
 <br/><br/>
-Serverless Devs 是 CNCF Sandbox 项目，可以在 <a href="https://landscape.cncf.io/serverless?license=apache-license-2-0">CNCF Cloud Native Landscape</a> 中查看。
+Serverless Devs 是 CNCF Sandbox 项目，可以在 <a href="https://landscape.cncf.io/?group=serverless&view-mode=grid&item=serverless--tools--serverless-devs-serverless">CNCF Cloud Native Landscape</a> 中查看。
 </p>
 
 
@@ -112,7 +114,7 @@ Serverless Devs 是 CNCF Sandbox 项目，可以在 <a href="https://landscape.c
 
 <p align="center">
 
-| <img src="https://img.alicdn.com/imgextra/i2/O1CN01zifTV61Mkg9QRNBUs_!!6000000001473-2-tps-466-462.png" width="200px" > | <img src="https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1635407044136_20211028074404326599.png" width="200px" > | <img src="https://img.alicdn.com/imgextra/i1/O1CN01ECE9wN1RMvgS6d1JM_!!6000000002098-0-tps-881-877.jpg" width="200px" > |
+| <img src="https://img.alicdn.com/imgextra/i2/O1CN01zifTV61Mkg9QRNBUs_!!6000000001473-2-tps-466-462.png" width="200px" > | <img src="https://img.alicdn.com/imgextra/i3/O1CN016kRQ1A24zePZnV87T_!!6000000007462-0-tps-528-528.jpg" width="200px" > | <img src="https://img.alicdn.com/imgextra/i1/O1CN01ECE9wN1RMvgS6d1JM_!!6000000002098-0-tps-881-877.jpg" width="200px" > |
 |--- | --- | --- |
 | <center>关注微信公众号：`serverless`</center> | <center>联系微信小助手：`xiaojiangwh`</center> | <center>加入钉钉交流群：`33947367`</center> | 
 

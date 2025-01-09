@@ -50,9 +50,13 @@ export default class Manager {
   }
 
   private async getProjectName() {
-    if (this.options.dir) return path.basename(this.options.dir);
+    if (this.options.dir) {
+      return path.basename(this.options.dir);
+    }
     const defaultValue = last(split(this.template, '/'));
-    if (this.options.y) return defaultValue;
+    if (this.options.y) {
+      return defaultValue;
+    }
     const answers = await inquirer.prompt([
       {
         type: 'input',
@@ -183,11 +187,9 @@ export default class Manager {
     });
 
     if (appPath) {
-      logger.write(`\n${emoji('🏄‍')} Thanks for using Serverless-Devs`);
-      logger.write(`${emoji('👉')} You could [cd ${appPath}] and enjoy your serverless journey!`);
-      logger.write(`${emoji('🧭️')} If you need help for this example, you can use [s -h] after you enter folder.`);
-      logger.write(`${emoji('💞')} Document ❤ Star: ` + chalk.cyan.underline('https://github.com/Serverless-Devs/Serverless-Devs'));
-      logger.write(`${emoji('🚀')} More applications: ` + chalk.cyan.underline('https://registry.serverless-devs.com\n'));
+      logger.write(chalk.gray(`\nThanks for using Serverless-Devs`));
+      logger.write(chalk.gray(`You could [cd ${appPath}] and enjoy your serverless journey!`));
+      logger.write(chalk.gray(`If you need help for this example, you can use [s -h] after you enter folder.\n`));
     }
 
     return { appPath };

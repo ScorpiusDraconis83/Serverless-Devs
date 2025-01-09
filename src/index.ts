@@ -15,12 +15,20 @@ const preRun = () => {
   process.env.serverless_devs_traceid = utils.traceid();
   // 初始化日志
   logger.initialization();
+  // 不推荐使用管理员权限
+  if (process.getuid && process.getuid() === 0 && !utils.isCiCdEnvironment()) {
+    logger.warn('It is not recommended to run the command as root user.');
+  }
   // 检查node版本是否过低
   checkNodeVersion();
   // 设置全局代理
   setProxy();
   // 检查更新
-  new UpdateNotifier().init().notify();
+  if (!utils.isCiCdEnvironment()) {
+    try {
+      new UpdateNotifier().init().notify();
+    } catch {}
+  }
   // 加载.env文件
   expand(dotenv.config({ path: path.join(process.cwd(), '.env') }));
 };
@@ -28,8 +36,7 @@ const preRun = () => {
 (async () => {
   preRun();
   // 处理 onboarding
-  const { _: raw, help, version } = utils.parseArgv(process.argv.slice(2));
-  if (raw.length === 0 && !help && !version) {
+  if (process.argv.slice(2).length === 0) {
     return await onboarding();
   }
   // 处理指令
@@ -50,6 +57,8 @@ process.on('exit', code => {
   logger.debug(`Process exitCode: ${code}`);
   // fix 光标位置
   logger.loggerInstance.__clear();
+  process.emit('DEVS:exit' as any);
+  process.exit();
 });
 
 process.on('SIGINT', () => {

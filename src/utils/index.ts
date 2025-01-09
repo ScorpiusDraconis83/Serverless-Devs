@@ -1,19 +1,20 @@
-import { maxBy, repeat, filter, get, each, isEmpty, find, isString } from 'lodash';
+import { maxBy, repeat, filter, get, each, isEmpty, find, isString, cloneDeepWith, isObject, isArray, isFunction } from 'lodash';
 import TableLayout from 'table-layout';
 import { getRootHome, parseArgv } from '@serverless-devs/utils';
 import fs from 'fs-extra';
 import path from 'path';
-import { IOutput, ENVIRONMENT_FILE_PATH, ENVIRONMENT_FILE_NAME } from '@serverless-devs/parse-spec';
+import { IOutput, ENVIRONMENT_FILE_PATH, ENVIRONMENT_FILE_NAME, ALIYUN_REMOTE_PROJECT_ENV_PARAM } from '@serverless-devs/parse-spec';
 import logger from '@/logger';
 import yaml from 'js-yaml';
 const pkg = require('../../package.json');
 import * as utils from '@serverless-devs/utils';
 import loadComponent from '@serverless-devs/load-component';
-import { ENV_COMPONENT_KEY, ENV_COMPONENT_NAME } from '@/command/env/constant';
+import { ENV_COMPONENT_KEY } from '@/command/env/constant';
 import Credential from '@serverless-devs/credential';
 import { IEnvArgs } from '@/type';
-import assert from 'assert';
 import stripAnsi from 'strip-ansi';
+import { Command } from 'commander';
+import ParseSpec from '@serverless-devs/parse-spec';
 
 export { default as checkNodeVersion } from './check-node-version';
 export { default as setProxy } from './set-proxy';
@@ -90,26 +91,28 @@ export const isJson = (value: string, key: string = '-p/--props') => {
   }
 };
 
+export const deepObfuscate = (obj) => {
+  return cloneDeepWith(obj, (value) => {
+    if (isObject(value) || isArray(value) && !isFunction(value)) {
+      return undefined; 
+    }
+    return '******';
+  });
+}
+
 export const showOutput = (data: any) => {
   logger.unsilent();
-  const { output = IOutput.DEFAULT, silent } = parseArgv(process.argv.slice(2));
-
+  const argvData = parseArgv(process.argv.slice(2));
+  const silent = get(argvData, 'silent');
+  const output = get(argvData, 'output') || get(argvData, 'output-format') || IOutput.DEFAULT;
   if (output !== IOutput.DEFAULT) {
     if (isString(data)) data = stripAnsi(data);
-    switch (output) {
-      case IOutput.JSON:
-        data = JSON.stringify(data, null, 2);
-        break;
-      case IOutput.YAML:
-        data = yaml.dump(data);
-        break;
-      case IOutput.RAW:
-        data = JSON.stringify(data);
-        break;
-      default:
-        break;
-    }
-    logger.write(data);
+    const newMap = {
+      [IOutput.JSON]: JSON.stringify(data, null, 2),
+      [IOutput.YAML]: yaml.dump(data),
+      [IOutput.RAW]: JSON.stringify(data),
+    };
+    logger.write(get(newMap, output));
   } else {
     logger.output(data);
   }
@@ -119,7 +122,8 @@ export const showOutput = (data: any) => {
 
 // 运行环境组件
 export const runEnvComponent = async (args: IEnvArgs, access: any) => {
-  const componentName = utils.getGlobalConfig(ENV_COMPONENT_KEY, ENV_COMPONENT_NAME);
+  const componentName = utils.getGlobalConfig(ENV_COMPONENT_KEY);
+  if (!componentName) return {};
   const componentLogger = logger.loggerInstance.__generate(componentName);
   const instance = await loadComponent(componentName, { logger: componentLogger });
 
@@ -155,11 +159,25 @@ export const getUid = async (access: string) => {
 };
 
 // 获取默认环境
-export const getDefaultEnv = () => {
-  const envFile = utils.getAbsolutePath(ENVIRONMENT_FILE_NAME);
-  if (!fs.existsSync(envFile)) return null;
-  const envYamlContent = utils.getYamlContent(envFile);
-  const project = get(envYamlContent, 'project');
+export const getDefaultEnv = (sPath: string) => {
+  const remoteProjectName = process.env[ALIYUN_REMOTE_PROJECT_ENV_PARAM];
+  let envFile: string;
+  let project: string;
+  if (remoteProjectName) {
+    envFile = utils.getAbsolutePath(ENVIRONMENT_FILE_NAME);
+    if (!fs.existsSync(envFile)) return null;
+    project = remoteProjectName;
+  } else {
+    if (!fs.existsSync(sPath)) sPath = 's.yaml';
+    const sFile = utils.getAbsolutePath(sPath);
+    if (!fs.existsSync(sFile)) return null;
+    const sYamlContent = utils.getYamlContent(sFile);
+    const envFileName = get(sYamlContent, 'env', ENVIRONMENT_FILE_NAME);
+    envFile = utils.getAbsolutePath(envFileName);
+    // 未找到env.yaml文件
+    if (!fs.existsSync(envFile)) return null;
+    project = get(sYamlContent, 'name');
+  }
   if (!project) return null;
   if (fs.existsSync(ENVIRONMENT_FILE_PATH)) {
     const defaultEnvContent = require(ENVIRONMENT_FILE_PATH);
@@ -174,16 +192,19 @@ export const getDefaultEnv = () => {
 };
 
 // 若有env参数或者默认env，运行组件
-export const runEnv = async (env: string | boolean) => {
+export const runEnv = async (env: string | boolean, sPath: string) => {
   if (typeof env === 'boolean') return;
   if (isEmpty(env)) {
-    env = getDefaultEnv();
+    env = getDefaultEnv(sPath);
     if (isEmpty(env)) return;
   }
-  const template = path.join(process.cwd(), ENVIRONMENT_FILE_NAME);
+  if (!fs.existsSync(sPath)) sPath = 's.yaml';
+  const sFile = utils.getAbsolutePath(sPath);
+  const { env: envParam } = utils.getYamlContent(sFile);
+  const template = path.join(process.cwd(), envParam || ENVIRONMENT_FILE_NAME);
   const { environments } = utils.getYamlContent(template);
   const data = find(environments, item => item.name === env);
-  assert(data, `The environment ${env} was not found`);
+  if (!data) return;
   const { access, ...rest } = data;
 
   const inputs = {
@@ -197,9 +218,49 @@ export const runEnv = async (env: string | boolean) => {
   await runEnvComponent(inputs, access);
 };
 
+// 获取组件提供的Schema
 export const getSchema = async (componentName: string) => {
   const componentLogger = logger.loggerInstance.__generate(componentName);
   const instance = await loadComponent(componentName, { logger: componentLogger });
   if (!instance || !instance.getSchema) return null;
   return instance.getSchema();
 };
+
+// 检查模版是否为3.x版本
+export const checkTemplateVersion = async (program: Command): Promise<boolean> => {
+  const { template } = program.optsWithGlobals();
+  try {
+    const spec = await new ParseSpec(template, { logger }).start();
+    if (!get(spec, 'yaml.use3x')) {
+      logger.tips(`Not support template: ${get(spec, 'yaml.path')}, you can update template to 3.x version`);
+      return false;
+    }
+    return true;
+  } catch {
+    // fix: env work without s.yaml
+    logger.debug('no s.yaml, env work without s.yaml');
+    return true;
+  }
+}
+
+export const mount = async (module: string, program: Command) => {
+  const subCommand = (await import(`../command/${module}`)).default;
+  subCommand(program);
+}
+
+export const mountAsync = async (module: string, program: Command) => {
+  const subCommand = (await import(`../command/${module}`)).default;
+  await subCommand(program);
+}
+
+export const getEnvFilePath = async (template: string): Promise<string> => {
+  try {
+    const spec = await new ParseSpec(template, { logger }).start();
+    const envPath = utils.getAbsolutePath(get(spec, 'yaml.content.env', ENVIRONMENT_FILE_NAME));
+    return envPath;
+  } catch (error) {
+    logger.debug('no template file, use default env.yaml');
+    // fix: use default env.yaml
+    return utils.getAbsolutePath(ENVIRONMENT_FILE_NAME);
+  }
+}

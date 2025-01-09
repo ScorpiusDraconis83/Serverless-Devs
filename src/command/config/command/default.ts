@@ -10,7 +10,7 @@ const description = `Specify an access as the default.
     $ s config default
     $ s config default -a demo
     
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/config')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/config/')}`;
 
 export default (program: Command) => {
   const command = program.command('default', { hidden: true });
@@ -18,7 +18,7 @@ export default (program: Command) => {
   command
     .usage('[options]')
     .description(description)
-    .summary(`${emoji(chalk.bold('-'))} Set default accounts`)
+    .summary(`Set default accounts`)
     .helpOption('-h, --help', 'Display help for command')
     .action(async options => {
       const credential = new Credential({ logger });

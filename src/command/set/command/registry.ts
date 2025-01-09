@@ -10,9 +10,9 @@ const description = `Set registry information.
 
 Example:
    $ s set registry
-   $ s set registry http://registry.devsapp.cn/simple
+   $ s set registry https://api.devsapp.cn/v3
    
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/set')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/set/')}`;
 
 const CUSTOMER_KEY = 'custom';
 const registryInquire = [
@@ -37,11 +37,6 @@ const registryInquire = [
         value: 'https://api.github.com/repos',
       },
       {
-        key: 'http://gitee.registry.devsapp.cn/simple',
-        name: 'gitee registry [http://gitee.registry.devsapp.cn/simple] ',
-        value: 'http://gitee.registry.devsapp.cn/simple',
-      },
-      {
         key: CUSTOMER_KEY,
         name: 'custom registry',
         value: CUSTOMER_KEY,
@@ -52,13 +47,13 @@ const registryInquire = [
 
 export default (program: Command) => {
   program
-    .command('registry', { hidden: true })
+    .command('registry')
     .usage('[options]')
     .description(description)
-    .summary(`${emoji('👀')} Set registry information`)
+    .summary(`Set registry information`)
     .helpOption('-h, --help', 'Display help for command')
     .action(async () => {
-      logger.write(`\n${emoji('👀')} Current registry action: ${getGlobalConfig('registry', DEFAULT_REGISTRY)}\n`);
+      logger.write(`\nCurrent registry action: ${getGlobalConfig('registry', DEFAULT_REGISTRY)}\n`);
       const { _: raw } = parseArgv(process.argv.slice(2));
       let registry: string = raw[2];
       if (!registry) {

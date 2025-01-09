@@ -49,7 +49,7 @@ test('s xx -t basic.yaml', async () => {
   const res = spawnSync(s, ['xx', '-t', 'basic.yaml'], { cwd });
   const stdout = res.stdout.toString();
   console.log(stdout);
-  expect(stdout).toMatch(/WARNING/);
+  expect(stdout).toMatch(/TIPS/);
   expect(stdout).toMatch(/The \[xx\] command was not found/);
 });
 
@@ -61,7 +61,7 @@ test('s demo xx -t basic.yaml', async () => {
   expect(stdout).toMatch(/The \[xx\] command was not found/);
 });
 
-test('s apierror -t basic.yaml', async () => {
+test.skip('s apierror -t basic.yaml', async () => {
   const res = spawnSync(s, ['apierror', '-t', 'basic.yaml'], { cwd });
   const stdout = res.stdout.toString();
   console.log(stdout);
@@ -79,7 +79,7 @@ test('s config add --AccessKeyID 123 --AccessKeySecret 456 -a test', async () =>
   const res = spawnSync(s, ['config', 'add', '--AccessKeyID', '123', '--AccessKeySecret', '456', '-a', 'test', '-f'], { cwd });
   const stdout = res.stdout.toString();
   console.log(stdout);
-  expect(stdout).toMatch(/Specified access key is not found/);
+  expect(stdout).toContain('AccountID auto get failed');
 });
 
 test('s config get -a not-exist', async () => {

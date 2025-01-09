@@ -1,21 +1,18 @@
 import { Command } from 'commander';
 import Engine, { IContext, STEP_STATUS } from '@serverless-devs/engine';
 import * as utils from '@serverless-devs/utils';
-import { get, each, filter, uniqBy, isEmpty, join, keys } from 'lodash';
+import { get, each, filter, uniqBy, isEmpty, join, keys, cloneDeep, find, set, unset, split, isArray } from 'lodash';
 import ParseSpec from '@serverless-devs/parse-spec';
-import V1 from './v1';
 import logger from '@/logger';
 import handleError from '@/error';
 import { ISpec } from './types';
-import Help from './help';
 import chalk from 'chalk';
-import path from 'path';
 import loadComponent from '@serverless-devs/load-component';
 import execDaemon from '@/exec-daemon';
-import { UPDATE_COMPONENT_CHECK_INTERVAL } from '@/constant';
+import { UPDATE_COMPONENT_CHECK_INTERVAL, CICD_ENV_KEY } from '@/constant';
 import { EReportType } from '@/type';
-import { emoji, showOutput, writeOutput, runEnv } from '@/utils';
-import { ETrackerType, DevsError, getUserAgent } from '@serverless-devs/utils';
+import { emoji, showOutput, writeOutput } from '@/utils';
+import { ETrackerType, DevsError, getUserAgent, isCiCdEnvironment } from '@serverless-devs/utils';
 
 export default class Custom {
   private spec = {} as ISpec;
@@ -43,10 +40,19 @@ export default class Custom {
         });
       }
     }
-    if (!get(this.spec, 'yaml.use3x')) return await new V1(this.program, this.spec).init();
-    // 若带env参数，运行env deploy
-    await runEnv(env);
-    if (help) return await new Help(this.program, this.spec).init();
+    if (!get(this.spec, 'yaml.use3x')) {
+      const V1 = (await import('./v1')).default;
+      return await new V1(this.program, this.spec).init();
+    }
+    if (help) {
+      const Help = (await import('./help')).default;
+      return await new Help(this.program, this.spec).init();
+    }
+    // 若带env参数以及是deploy或plan指令，运行env deploy
+    if (raw[0] === 'deploy' || raw[0] === 'plan') {
+      const runEnv = (await import('@/utils')).runEnv;
+      await runEnv(env, template);
+    }
     this.program
       .command(raw[0])
       .allowUnknownOption()
@@ -70,10 +76,15 @@ export default class Custom {
         };
         if (get(context, 'status') === 'success') {
           execDaemon('report.js', { ...reportData, type: EReportType.command });
-          rest['output-file'] ? writeOutput(get(context, 'output')) : this.output(context);
-          if (utils.getGlobalConfig('log') !== 'disable') {
-            logger.write(`\nA complete log of this run can be found in: ${chalk.underline(path.join(utils.getRootHome(), 'logs', process.env.serverless_devs_traceid))}\n`);
+          // add __component info to output
+          for (const i in get(context, 'output')) {
+            const step = get(context, 'steps').find(step => step.projectName === i);
+            set(context, `output.${i}.__component`, get(step, 'component'));
           }
+          rest['output-file'] ? writeOutput(get(context, 'output')) : this.output(context);
+          // if (utils.getGlobalConfig('log') !== 'disable') {
+          //   logger.write(`\nA complete log of this run can be found in: ${chalk.underline(path.join(utils.getRootHome(), 'logs', process.env.serverless_devs_traceid))}\n`);
+          // }
           return;
         }
         await handleError(context.error, reportData);
@@ -106,12 +117,75 @@ export default class Custom {
     if (keys(data).length === 1) return data[keys(data)[0]];
     return data;
   }
-  private output(context: IContext) {
+  private async output(context: IContext) {
     if (isEmpty(get(context, 'output'))) return;
-    const data = this.parseOutput(get(context, 'output'));
-    logger.write(`\n${emoji('🚀')} Result for [${this.spec.command}] of [${get(this.spec, 'yaml.appName')}]\n${chalk.gray('====================')}`);
+    const data = await this.processOutput(context);
+    logger.write(chalk.gray(`\n${emoji('🚀')} Result for [${this.spec.command}] of [${get(this.spec, 'yaml.appName')}]\n${chalk.gray('====================')}`));
     showOutput(data);
   }
+  private async getProcessedOutput(context: IContext) {
+    const { steps, command } = this.spec;
+    const showData = {};
+    const originalData = cloneDeep(get(context, 'output')); 
+    for (const i in originalData) {
+      const originalObj = originalData[i];
+      const step = find(steps, item => item.projectName === i);
+      const componentName = get(step, 'component');
+      const instance = await loadComponent(componentName, { logger });
+      if (instance.getShownProps) {
+        const shownPropsObj = await instance.getShownProps();
+        if (!isEmpty(shownPropsObj)) {
+          const keyList = keys(shownPropsObj);
+          if (!isEmpty(keyList)) {
+            const destKey = find(keyList, item => {
+              try {
+                return new RegExp('^' + item + '$').test(command);
+              } catch {
+                return false;
+              }
+            });
+            const shownPropsList = get(shownPropsObj, destKey);
+            if (!isEmpty(shownPropsList)) {
+              for (const j of shownPropsList) {
+                // 适配[*]写法
+                const keyList = split(j, '[*]');
+                this.deepSet(showData, originalData, keyList, i + '.');
+              }
+              continue;
+            }
+          }
+        }
+      } 
+      const envVarKey = 'environmentVariables';
+      if (get(originalObj, envVarKey)) unset(originalObj, envVarKey);
+      set(showData, i, cloneDeep(originalObj));
+    }
+    return showData;
+  }
+  // cicd环境下默认隐藏，选择性显示
+  private async processOutput(context: IContext) {
+    if (process.env[CICD_ENV_KEY] == 'true' || isCiCdEnvironment()) {
+      const showData = await this.getProcessedOutput(context);
+      return this.parseOutput(showData);
+    }
+    return this.parseOutput(get(context, 'output'));
+  }
+  // 深度遍历设置属性值
+  private deepSet(showData: Object, context: Object, keyList: Array<string>, path: string) {
+    const key = keyList.shift();
+    path += key;
+    const subKeyList = get(context, path, []);
+    if (isEmpty(keyList)) {
+      if (get(context, path)) set(showData, path, get(context, path));
+      return;
+    }
+    if (!isArray(subKeyList)) return;
+    const arrayLength = subKeyList.length;
+    for (let i = 0; i < arrayLength; i++) {
+      const _keyList = cloneDeep(keyList);
+      this.deepSet(showData, context, _keyList, path + `[${i}]`);
+    }
+  } 
   private async parseSpec() {
     const argv = process.argv.slice(2);
     const { template } = utils.parseArgv(argv);

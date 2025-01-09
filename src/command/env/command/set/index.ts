@@ -3,32 +3,21 @@ import chalk from 'chalk';
 import { emoji } from '@/utils';
 import Action from './action';
 
-const description = `You can add an account
+const description = `Set default env component.
 
-    Example:
-        $ s config add
-        $ s config add --AccessKey ****** --SecretKey ******
-        $ s config add --AccessKeyID ****** --AccessKeySecret ****** --AccountID ****** --SecurityToken ******
-        $ s config add --keyList key1,key2,key3 --infoList value1,value2,value3
+Example:
+    $ s set env --component ServerlessDevsAdmin
 
-    Configuration parameters template for vendors:
-        alibaba: AccessKeyID, AccessKeySecret
-        aws: AccessKeyID, SecretAccessKey
-        baidu: AccessKeyID, SecretAccessKey
-        huawei: AccessKey, SecretKey
-        google: PrivateKeyData
-        tencent: AccountID, SecretID, SecretKey
-
-${emoji('📖')} Document: ${chalk.underline('https://github.com/Serverless-Devs/Serverless-Devs/tree/master/docs/zh/command/env.md')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/set/')}`;
 
 export default (program: Command) => {
-  const command = program.command('set');
+  const command = program.command('set', { hidden: true });
   command
     .usage('[options]')
     .description(description)
-    .summary(`${emoji(chalk.bold('+'))} set`)
+    .summary(`set`)
     .requiredOption('--component <name>', 'Specify the component name')
-    .helpOption('-h, --help', 'Displsay help for command')
+    .helpOption('-h, --help', 'Display help for command')
     .action(async options => {
       await new Action({ ...options, ...program.optsWithGlobals() }).start();
     });

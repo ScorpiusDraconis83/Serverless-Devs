@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { emoji, getUid, isJson, writeOutput } from '@/utils';
-import v1 from './v1';
 import * as utils from '@serverless-devs/utils';
 import loadComponent from '@serverless-devs/load-component';
 import Credential from '@serverless-devs/credential';
@@ -16,10 +15,10 @@ import handleError from '@/error';
 const description = `Directly use serverless devs to use components, develop and manage applications without yaml configuration.
   
   Example:
-    $ s cli fc api ListServices
-    $ s cli fc api ListFunctions --path '{"serviceName": "serviceName"}' --body '{"K1": "V1"}'
+    $ s cli fc3 info --region cn-hangzhou --function-name  test -a myAccess
+    $ s cli fc3 invoke --region cn-hangzhou --function-name  test -e "{\"key\" : \"val\"}" -a myAccess
     
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/cli')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/cli/')}`;
 
 export default async (program: Command) => {
   const { _: raw = [], help } = utils.parseArgv(process.argv.slice(2));
@@ -28,7 +27,7 @@ export default async (program: Command) => {
   const cliProgram = program
     .command('cli')
     .description(description)
-    .summary(`${emoji('🐚')} Command line operation without yaml mode`)
+    .summary(`Command line operation without yaml mode`)
     .option('-p, --props <jsonString>', 'The json string of props', v => isJson(v))
     .option('-h, --help', 'Display help for command', undefined) // 避免自动调用help信息（s cli fc -h）
     .allowUnknownOption();
@@ -38,7 +37,10 @@ export default async (program: Command) => {
   }
   const [componentName] = raw.slice(1);
   const v3 = await isFc3(componentName);
-  if (!v3) return v1(cliProgram);
+  if (!v3) {
+    const v1 = (await import('./v1')).default;
+    return v1(cliProgram);
+  }
   // s cli fc3 or s cli fc3 -h
   if (help || raw.length === 2) return new Help(cliProgram).init();
   cliProgram.action(async () => {
@@ -49,7 +51,8 @@ export default async (program: Command) => {
 
 const isFc3 = async (componentName: string) => {
   try {
-    const instance = await loadComponent(componentName);
+    const componentLogger = logger.loggerInstance.__generate(componentName);
+    const instance = await loadComponent(componentName, { logger: componentLogger });
     if (instance.__path) return true;
   } catch (error) {
     return false;

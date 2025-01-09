@@ -13,13 +13,13 @@ const description = `Get details of installed components.
   Example:
     $ s component
     
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/component')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/component/')}`;
 
 export default (program: Command) => {
   program
     .command('component')
     .description(description)
-    .summary(`${emoji('🔌')} Installed component information`)
+    .summary(`Installed component information`)
     .helpOption('-h, --help', 'Display help for command.')
     .action(async options => {
       await doAction(options);
@@ -31,7 +31,7 @@ const doAction = async options => {
   const componentPath = path.join(home, 'components');
   const devsappPath = path.join(componentPath, 'devsapp.cn');
   if (!fs.existsSync(devsappPath)) {
-    logger.tips('Not found component.', `You can visit ${chalk.cyan.underline('https://serverless.help/t/s/quick_start')} to learn more.`);
+    logger.tips('Component not found.', `You can visit ${chalk.cyan.underline('https://docs.serverless-devs.com/getting-started/')} to learn more.`);
     return;
   }
   const devsappDir = fs.readdirSync(devsappPath);
