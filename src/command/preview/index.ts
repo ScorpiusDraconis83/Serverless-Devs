@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { emoji, showOutput, writeOutput, runEnv } from '@/utils';
+import { emoji, showOutput, writeOutput } from '@/utils';
 import ParseSpec from '@serverless-devs/parse-spec';
 import logger from '@/logger';
 import { get, omit } from 'lodash';
@@ -11,19 +11,20 @@ const description = `Application preview.
   Example:
     $ s preview
     
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/preview')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/preview/')}`;
 
 export default (program: Command) => {
   program
     .command('preview')
     .description(description)
-    .summary(`${emoji('👀')} Preview Yaml render results`)
+    .summary(`Preview Yaml render results`)
+    .option('--env <envName>', 'Specify the env name')
     .helpOption('-h, --help', 'Display help for command')
     .action(async options => {
-      const { template, env } = program.optsWithGlobals();
+      const { template } = program.optsWithGlobals();
       // 若有env或者默认env，运行环境组件的env deploy
-      await runEnv(env);
-      const spec = await new ParseSpec(template, { logger }).start();
+      // await runEnv(env);
+      const spec = await new ParseSpec(template, { logger, isPreview: true }).start();
       if (get(spec, 'yaml.use3x')) {
         logger.debug(`Template: ${get(spec, 'yaml.path')}`);
         const content = get(spec, 'yaml.content');

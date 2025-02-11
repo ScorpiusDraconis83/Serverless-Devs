@@ -9,13 +9,13 @@ const description = `Publish Serverless Registry.
 Example:
   $ s registry publish
    
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/registry-publish')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/registry/')}`;
 
 export default (program: Command) => {
   program
     .command('publish')
     .description(description)
-    .summary(`${emoji('✅')} Public Serverless Package to Serverless Registry`)
+    .summary(`Public Serverless Package to Serverless Registry`)
     .usage('[options]')
     .helpOption('-h, --help', 'Display help for command')
     .action(async () => {

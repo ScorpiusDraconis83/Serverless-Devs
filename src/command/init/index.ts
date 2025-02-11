@@ -14,7 +14,7 @@ Example:
     $ s init git@github.com:foo/bar.git
     $ s init https://github.com/foo/bar.git
 
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/init')}
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/init/')}
 ${emoji('🚀')} More applications: ${chalk.underline('https://registry.serverless-devs.com')}`;
 
 export default (program: Command) => {
@@ -22,7 +22,7 @@ export default (program: Command) => {
     .command('init')
     .usage('[options]')
     .description(description)
-    .summary(`${emoji('💞')} Initializing a serverless project`)
+    .summary(`Initializing a serverless project`)
     .helpOption('-h, --help', 'Display help for command')
     .option('-d, --dir <dir>', 'Where to output the initialized app into (default: ./<ProjectName> )')
     .option('-r, --registry <url>', 'Use specify registry')

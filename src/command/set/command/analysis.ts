@@ -11,7 +11,7 @@ const description = `Set analysis action.
         $ s set analysis
         $ s set analysis disable
         
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/set')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/set/')}`;
 
 const promptOption = [
   {
@@ -36,10 +36,10 @@ export default (program: Command) => {
     .command('analysis')
     .usage('[options]')
     .description(description)
-    .summary(`${emoji('👉')} Set to enable or disable analysis`)
+    .summary(`Set to enable or disable analysis`)
     .helpOption('-h, --help', 'Display help for command')
     .action(async () => {
-      logger.write(`\n${emoji('👉')} Current analysis action: ${getGlobalConfig('analysis', 'enable')}\n`);
+      logger.write(`\nCurrent analysis action: ${getGlobalConfig('analysis', 'enable')}\n`);
       const { _: raw } = parseArgv(process.argv.slice(2));
       let type = raw[2];
       if (type) {

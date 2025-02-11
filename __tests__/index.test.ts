@@ -7,6 +7,7 @@ const pkg = require('../package.json');
 const cwd = path.resolve(__dirname, './fixtures/basic');
 
 test('s -v', async () => {
+  spawnSync(s, ['emptyarray'], { cwd });
   const res = spawnSync(s, ['-v']);
   const stdout = res.stdout.toString();
   console.log(stdout);
@@ -86,5 +87,24 @@ test.skip(`config('AccountID') v2`, async () => {
   expect(res.status).toBe(0);
 });
 
+test('--output', async () => {
+  const dest = path.join(__dirname, './fixtures/basic');
+  const template = path.join(dest, 's.yaml');
+  const res = spawnSync(s, ['deploy', '-t', template, '--output', 'json'], { cwd });
+  const stdout = res.stdout.toString();
+  console.log(stdout);
+  expect(res.status).toBe(0);
+  expect(stdout).toContain('\"hello\": \"world\"');
+});
+
+test('--output-format', async () => {
+  const dest = path.join(__dirname, './fixtures/basic');
+  const template = path.join(dest, 's.yaml');
+  const res = spawnSync(s, ['deploy', '-t', template, '--output-format', 'json'], { cwd });
+  const stdout = res.stdout.toString();
+  console.log(stdout);
+  expect(res.status).toBe(0);
+  expect(stdout).toContain('\"hello\": \"world\"');
+});
 // sl cli fc api ListServices -o json --output-file o.json
 // sl cli fc3 layer list -a shl --region cn-hangzhou -o json --output-file o.json

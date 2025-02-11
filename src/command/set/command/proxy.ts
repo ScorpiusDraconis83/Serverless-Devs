@@ -12,14 +12,14 @@ Example:
    $ s set proxy --http_proxy xxxx:xxx --https_proxy xxxx:xxx
    $ s set proxy --enable
    
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/set')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/set/')}`;
 
 export default (program: Command) => {
   program
     .command('proxy')
     .usage('[options]')
     .description(description)
-    .summary(`${emoji('🔧')} Set proxy information`)
+    .summary(`Set proxy information`)
     .option('--enable', 'whether to enable proxy')
     .option('--no-enable', 'whether to disable proxy', true)
     .option('--http_proxy <http_proxy_value>', 'Specify the http_proxy.')

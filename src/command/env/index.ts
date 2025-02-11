@@ -1,34 +1,27 @@
 import { Command } from 'commander';
-import { emoji, suggestCommand } from '@/utils';
+import { emoji, suggestCommand, mount } from '@/utils';
 import chalk from 'chalk';
-import subInit from './command/init';
-import subDefault from './command/default';
-import subDescribe from './command/describe';
-import subDestroy from './command/destroy';
-import subList from './command/list';
-import subSet from './command/set';
 
 const description = `Managing multiple environments for serverless applications, such as testing, development, and production environments, is the best practice for serverless Devs for serverless environments.
 
 Supported vendors: Alibaba Cloud
 
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/env')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/env/')}`;
 export default (program: Command) => {
   const envProgram = program.command('env');
   suggestCommand(envProgram);
   envProgram
     .description(description)
-    .summary(`${emoji('🌱')} Environment operation`)
+    .summary(`Environment operation`)
     .usage('[commands] [options]')
     .addHelpCommand(false)
     .helpOption('-h, --help', 'Display help for command');
 
-  subInit(envProgram);
-  subList(envProgram);
-  // 暂时不需要
-  // subUpdate(envProgram);
-  subDescribe(envProgram);
-  subDestroy(envProgram);
-  subDefault(envProgram);
-  subSet(envProgram);
+  mount('env/command/init/index.ts', envProgram);
+  mount('env/command/default/index.ts', envProgram);
+  mount('env/command/describe/index.ts', envProgram);
+  // mount('env/command/update/index.ts', envProgram);
+  mount('env/command/destroy/index.ts', envProgram);
+  mount('env/command/list/index.ts', envProgram);
+  mount('env/command/set/index.ts', envProgram);
 };

@@ -11,14 +11,14 @@ Example:
   $ s registry login --token xxxxxxxxxxxxxxx
   $ s registry login --retoken
    
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/registry-login')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/registry/')}`;
 
 export default (program: Command) => {
   program
     .command('login')
     .usage('[options]')
     .description(description)
-    .summary(`${emoji('😃')} Login Serverless Registry`)
+    .summary(`Login Serverless Registry`)
     .option('--token <token>', 'Login by token')
     .option('--retoken', 'Reset login token')
     // .option('--get-token', 'Get login token')

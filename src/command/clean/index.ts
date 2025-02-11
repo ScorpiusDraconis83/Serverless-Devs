@@ -17,7 +17,7 @@ const description = `Clean up the cache related functions of serverless devs. Yo
   Tips:
     Get all installed component: s component
     
-${emoji('📖')} Document: ${chalk.underline('https://serverless.help/t/s/clean')}`;
+${emoji('📖')} Document: ${chalk.underline('https://docs.serverless-devs.com/user-guide/builtin/clean/')}`;
 
 function cleanLogs() {
   const sPath = getRootHome();
@@ -63,7 +63,7 @@ export default (program: Command) => {
     .command('clean')
     .usage('[options]')
     .description(description)
-    .summary(`${emoji('💥')} Clean up the environment`)
+    .summary(`Clean up the environment`)
     .option('--all', 'Clean up the environment')
     .option('--logs', 'Clean logs')
     .option('--cache [dirName]', 'Delete the <dirName> file in the cache')
